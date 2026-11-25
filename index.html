@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>衛生化学2 小テスト道場</title>
+<style>
+  :root {
+    --bg: #f4f7fa;
+    --surface: #ffffff;
+    --surface-2: #eef3f8;
+    --ink: #1c2a3a;
+    --muted: #64748b;
+    --border: #dce6ef;
+    --primary: #1e7fc2;
+    --primary-ink: #ffffff;
+    --teal: #2fb6a0;
+    --amber: #f2a33d;
+    --red: #e0472c;
+    --green: #2fae66;
+    --shadow: 0 2px 10px rgba(30, 50, 80, 0.07);
+    --maru-bg: #e7f3fc;
+    --batsu-bg: #fdeeea;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #10161f;
+      --surface: #1a2330;
+      --surface-2: #212c3b;
+      --ink: #e7edf5;
+      --muted: #93a2b5;
+      --border: #2b3851;
+      --primary: #4fa3e3;
+      --primary-ink: #0b1420;
+      --teal: #42d6bd;
+      --amber: #f3b45c;
+      --red: #ff7a63;
+      --green: #4fd185;
+      --shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
+      --maru-bg: #16314a;
+      --batsu-bg: #3a2420;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #10161f;
+    --surface: #1a2330;
+    --surface-2: #212c3b;
+    --ink: #e7edf5;
+    --muted: #93a2b5;
+    --border: #2b3851;
+    --primary: #4fa3e3;
+    --primary-ink: #0b1420;
+    --teal: #42d6bd;
+    --amber: #f3b45c;
+    --red: #ff7a63;
+    --green: #4fd185;
+    --shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
+    --maru-bg: #16314a;
+    --batsu-bg: #3a2420;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: var(--bg); color: var(--ink);
+    font-family: "Hiragino Sans", "Noto Sans JP", "Yu Gothic", Meiryo, system-ui, sans-serif;
+  }
+  body {
+    display: flex; justify-content: center;
+    padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
+  }
+  #app {
+    width: 100%; max-width: 640px;
+    min-height: 100vh;
+    padding: 20px 16px 40px;
+    display: flex; flex-direction: column;
+  }
+
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .brand {
+    font-size: 15px; font-weight: 700; color: var(--primary);
+    letter-spacing: 0.02em;
+  }
+  .brand span { color: var(--muted); font-weight: 500; font-size: 12px; margin-left: 6px; }
+
+  .theme-toggle {
+    border: 1px solid var(--border); background: var(--surface);
+    color: var(--muted); border-radius: 20px; padding: 5px 12px;
+    font-size: 12px; cursor: pointer;
+  }
+
+  h1 { font-size: 21px; margin: 4px 0 6px; line-height: 1.4; }
+  .sub { color: var(--muted); font-size: 13.5px; line-height: 1.7; margin-bottom: 18px; }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 18px; box-shadow: var(--shadow);
+    margin-bottom: 14px;
+  }
+
+  /* ---- Home / mode select ---- */
+  .mode-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  .mode-btn {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 14px; padding: 14px 16px; cursor: pointer;
+    text-align: left; width: 100%; color: var(--ink); font-family: inherit;
+    transition: border-color .15s, transform .1s;
+  }
+  .mode-btn:active { transform: scale(0.98); }
+  .mode-btn:hover { border-color: var(--primary); }
+  .mode-icon {
+    flex: 0 0 auto; width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 19px; background: var(--surface-2); color: var(--primary);
+  }
+  .mode-text { flex: 1; min-width: 0; }
+  .mode-title { font-weight: 700; font-size: 14.5px; }
+  .mode-desc { color: var(--muted); font-size: 12px; margin-top: 2px; }
+
+  .round-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+  }
+  .round-chip {
+    border: 1.5px solid var(--border); background: var(--surface);
+    border-radius: 12px; padding: 10px 6px; text-align: center; cursor: pointer;
+    font-family: inherit; color: var(--ink);
+  }
+  .round-chip:hover { border-color: var(--primary); }
+  .round-chip .num { font-size: 16px; font-weight: 800; color: var(--primary); }
+  .round-chip .label { font-size: 10.5px; color: var(--muted); margin-top: 3px; line-height: 1.3; display: block; }
+  .round-chip .stat { font-size: 10px; color: var(--teal); margin-top: 4px; }
+
+  .section-label {
+    font-size: 12px; font-weight: 700; color: var(--muted);
+    margin: 18px 0 8px; letter-spacing: 0.03em;
+  }
+
+  /* ---- Quiz screen ---- */
+  .progress-wrap { margin-bottom: 14px; }
+  .progress-top {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12.5px; color: var(--muted); margin-bottom: 6px;
+  }
+  .progress-bar-bg {
+    height: 6px; background: var(--surface-2); border-radius: 4px; overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%; background: var(--primary); border-radius: 4px;
+    transition: width .25s ease;
+  }
+  .score-pill {
+    font-size: 12px; font-weight: 700; color: var(--teal);
+    background: var(--surface-2); padding: 3px 10px; border-radius: 20px;
+  }
+
+  .q-roundtag {
+    display: inline-block; font-size: 11px; font-weight: 700;
+    color: var(--primary); background: var(--surface-2);
+    padding: 3px 9px; border-radius: 20px; margin-bottom: 10px;
+  }
+  .q-text {
+    font-size: 16px; line-height: 1.85; font-weight: 500;
+    white-space: pre-wrap;
+  }
+
+  .answer-row { display: flex; gap: 10px; margin-top: 18px; }
+  .ans-btn {
+    flex: 1; padding: 18px 8px; border-radius: 14px; border: 2px solid var(--border);
+    background: var(--surface); font-family: inherit; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    transition: border-color .12s, background .12s, transform .1s;
+  }
+  .ans-btn:active { transform: scale(0.97); }
+  .ans-btn .mark { font-size: 30px; font-weight: 800; line-height: 1; }
+  .ans-btn .word { font-size: 12px; color: var(--muted); }
+  .ans-btn.maru .mark { color: var(--primary); }
+  .ans-btn.batsu .mark { color: var(--red); }
+  .ans-btn.maru:hover { background: var(--maru-bg); border-color: var(--primary); }
+  .ans-btn.batsu:hover { background: var(--batsu-bg); border-color: var(--red); }
+  .ans-btn:disabled { cursor: default; }
+
+  .ans-btn.correct-pick { background: var(--maru-bg); border-color: var(--green); }
+  .ans-btn.correct-pick .mark { color: var(--green); }
+  .ans-btn.wrong-pick { background: var(--batsu-bg); border-color: var(--red); }
+  .ans-btn.wrong-pick .mark { color: var(--red); }
+  .ans-btn.dim { opacity: 0.4; }
+
+  .feedback {
+    margin-top: 16px; border-radius: 14px; padding: 16px;
+    border: 1.5px solid var(--border); background: var(--surface-2);
+  }
+  .feedback.ok { border-color: var(--green); }
+  .feedback.ng { border-color: var(--red); }
+  .feedback-head {
+    display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 14.5px;
+    margin-bottom: 8px;
+  }
+  .feedback.ok .feedback-head { color: var(--green); }
+  .feedback.ng .feedback-head { color: var(--red); }
+  .feedback-body { font-size: 13.5px; line-height: 1.8; color: var(--ink); }
+  .feedback-slide {
+    margin-top: 10px; font-size: 11.5px; color: var(--muted);
+    border-top: 1px dashed var(--border); padding-top: 8px;
+  }
+
+  .nav-row { display: flex; gap: 10px; margin-top: 16px; }
+  .btn {
+    font-family: inherit; border: none; border-radius: 12px; padding: 13px 16px;
+    font-size: 14px; font-weight: 700; cursor: pointer; flex: 1;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary { background: var(--primary); color: var(--primary-ink); }
+  .btn-ghost { background: var(--surface-2); color: var(--ink); border: 1px solid var(--border); }
+  .btn-full { width: 100%; }
+
+  /* ---- Result screen ---- */
+  .result-score {
+    text-align: center; padding: 22px 10px 8px;
+  }
+  .result-score .big {
+    font-size: 44px; font-weight: 800; color: var(--primary); line-height: 1;
+  }
+  .result-score .small { color: var(--muted); font-size: 13px; margin-top: 8px; }
+
+  .ring-wrap { display: flex; justify-content: center; margin: 10px 0 18px; }
+
+  .review-list { display: flex; flex-direction: column; gap: 8px; }
+  .review-item {
+    border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px;
+    background: var(--surface);
+  }
+  .review-item .ri-head {
+    display: flex; justify-content: space-between; font-size: 11.5px; color: var(--muted); margin-bottom: 5px;
+  }
+  .review-item .ri-q { font-size: 13.5px; line-height: 1.6; margin-bottom: 6px; }
+  .review-item .ri-ans { font-size: 12.5px; }
+  .ri-ans .ok { color: var(--green); font-weight: 700; }
+  .ri-ans .ng { color: var(--red); font-weight: 700; }
+
+  .empty-msg {
+    text-align: center; color: var(--muted); font-size: 13.5px; padding: 30px 10px;
+  }
+
+  footer-note { display:none; }
+  .footnote { text-align: center; color: var(--muted); font-size: 11px; margin-top: 22px; }
+</style>
+</head>
+<body>
+
+
+<div id="app"></div>
+
+<script>window.__QUIZ_DATA__ = [{"r":1,"t":"化学物質による食品汚染","q":1,"text":"水俣病の原因物質はメチル水銀であり、水系のバクテリア・真菌によるバイオメチレーション（生物学的メチル化）を経て食物連鎖により魚介類に蓄積した。","ans":true,"exp":"スライド「水俣病とメチル水銀（1）事件の概要」の記述どおりで正しい。","slide":"水俣病とメチル水銀①"},{"r":1,"t":"化学物質による食品汚染","q":2,"text":"水俣病でみられる感覚障害・運動失調・視野狭窄などの神経症状は、「ギラン・バレー症候群」と呼ばれる。","ans":false,"exp":"正しくは「ハンター・ラッセル症候群」。ギラン・バレー症候群は別の神経疾患（自己免疫性の末梢神経障害）である。","slide":"水俣病とメチル水銀①"},{"r":1,"t":"化学物質による食品汚染","q":3,"text":"メチル水銀は血中では主に赤血球中に存在し、グルタチオンと抱合して胆汁中に排泄されるが、腸管から再吸収されて腸肝循環する。","ans":true,"exp":"スライド「水俣病とメチル水銀（2）体内動態とリスク管理」の記述どおりで正しい。","slide":"水俣病とメチル水銀②"},{"r":1,"t":"化学物質による食品汚染","q":4,"text":"イタイイタイ病は、富山県神通川下流域で発生したヒ素の慢性中毒による骨軟化症である。","ans":false,"exp":"イタイイタイ病の原因物質はヒ素ではなくカドミウムである。上流の鉱業所の亜鉛精錬に伴う廃水中のカドミウムが原因とされる。","slide":"イタイイタイ病とカドミウム①"},{"r":1,"t":"化学物質による食品汚染","q":5,"text":"森永ヒ素ミルク中毒事件は、粉ミルクに使用されたpH安定剤（リン酸水素二ナトリウム）中の不純物として無機ヒ素が混入したことが原因である。","ans":true,"exp":"スライド「森永ヒ素ミルク中毒事件とヒ素（1）事件の概要」の記述どおりで正しい。","slide":"森永ヒ素ミルク中毒事件とヒ素①"},{"r":1,"t":"化学物質による食品汚染","q":6,"text":"生物濃縮の指標のうち、食物連鎖・水（餌）などすべての経路からの取り込みを表す指標はBCF（Bio-Concentration Factor）である。","ans":false,"exp":"食物連鎖・水（餌）などすべての経路からの取り込みを表すのはBAF（Bio-Accumulation Factor）である。BCFは、えらや体表を介する直接的な取り込みを表す指標。","slide":"生物濃縮の仕組み"},{"r":1,"t":"化学物質による食品汚染","q":7,"text":"アフラトキシンはAspergillus flavus・A. parasiticusなどが産生し、その中でもアフラトキシンB1は天然物でもっとも強力な発がん物質として知られる。","ans":true,"exp":"スライド「アフラトキシン」の記述どおりで正しい。","slide":"アフラトキシン"},{"r":1,"t":"化学物質による食品汚染","q":8,"text":"パツリンは主にトウモロコシの腐敗菌が産生するカビ毒であり、傷ついたトウモロコシで増殖する。","ans":false,"exp":"パツリンはりんごの腐敗菌が、収穫・選別・運搬時に傷ついたりんごで増殖して産生するカビ毒である。トウモロコシではない。","slide":"パツリン Patulin"},{"r":1,"t":"化学物質による食品汚染","q":9,"text":"カネミ油症事件は、米ぬか油の脱臭工程で熱媒体として使用されたPCBが製品に混入し、ダイオキシン類（PCDF・コプラナーPCB）とともに食用油を汚染したことが原因である。","ans":true,"exp":"スライド「カネミ油症事件（1）事件の概要」の記述どおりで正しい。","slide":"カネミ油症事件①"},{"r":1,"t":"化学物質による食品汚染","q":10,"text":"ダイオキシン類について、毒性の強さを加味して足し合わせた総量を表す指標はTWI（Tolerable Weekly Intake）と呼ばれる。","ans":false,"exp":"毒性の強さを加味して足し合わせた総量を表す指標はTEQ（Total Equivalency Quantity）である。TWIは「耐容週間摂取量」を意味する別の概念（例：カドミウムのTWIなど）であり、混同しやすいので注意。","slide":"ダイオキシン類の摂取量とTDI"},{"r":2,"t":"化学物質の体内動態","q":1,"text":"化学物質の生体内での挙動は吸収・分布・代謝・排泄の4過程に分けられ、頭文字をとってADME（アドメ）と呼ばれる。この体内動態を、有害な作用と関連付けて定量的に把握する学問をトキシコキネティクスという。","ans":true,"exp":"スライド「化学物質の体内動態とは（ADME・トキシコキネティクス）」の記述どおりで正しい。","slide":"化学物質の体内動態とは"},{"r":2,"t":"化学物質の体内動態","q":2,"text":"受動拡散は担体やエネルギーを必要とせず、濃度勾配の高い方から低い方へ拡散する輸送様式である。化学物質の脂溶性の指標であるlog P値は、値が負であるほど脂溶性が高いことを示す。","ans":false,"exp":"前半の受動拡散の説明は正しいが、log Pは正の値が大きいほど脂溶性が高く、負の値が大きいほど水溶性が高いことを示す（符号の向きが逆）。","slide":"受動拡散と脂溶性の指標（log P）"},{"r":2,"t":"化学物質の体内動態","q":3,"text":"一次性能動輸送はSLC（solute carrier）トランスポーターが担い、二次性能動輸送・促進拡散はABC（ATP binding cassette）トランスポーターが担う。","ans":false,"exp":"正しくは逆で、ATPを直接利用する一次性能動輸送を担うのはABCトランスポーター（例：P-糖タンパク質）、二次性能動輸送・促進拡散を担うのはSLCトランスポーター（例：OAT、OCT）である。","slide":"促進拡散・能動輸送とトランスポーター"},{"r":2,"t":"化学物質の体内動態","q":4,"text":"毒性が強く現れる（吸収速度が速い）曝露経路の順は、静脈内投与＞吸入＞腹腔内投与＞皮下投与＞筋肉内投与＞皮内投与＞経口投与＞経皮投与である。","ans":true,"exp":"スライド「吸収の概要（曝露経路と吸収速度）」の記述どおりで正しい。","slide":"吸収の概要"},{"r":2,"t":"化学物質の体内動態","q":5,"text":"消化管から吸収された化学物質の多くは門脈を経て肝臓に至り、小腸粘膜や肝臓の代謝によって毒性が減弱する現象を腸肝循環という。","ans":false,"exp":"小腸粘膜・肝臓の代謝により毒性が減弱する現象は「初回通過効果」である。腸肝循環は、抱合を受け水溶性が高まった代謝物が腸内細菌により脱抱合され、小腸から再吸収される現象を指す（別の概念）。","slide":"消化管からの吸収"},{"r":2,"t":"化学物質の体内動態","q":6,"text":"肺は約5億個の肺胞をもち、その総表面積は約100m²に達する。これは皮膚の表面積の約50倍に相当し、化学物質吸収の場として重要である。","ans":true,"exp":"スライド「肺からの吸収」の記述どおりで正しい。","slide":"肺からの吸収"},{"r":2,"t":"化学物質の体内動態","q":7,"text":"血液中では、主に酸性の化学物質はアルブミンに、塩基性の化学物質は酸性糖タンパク質（α1-酸性糖タンパク質）に結合することが知られている。","ans":true,"exp":"スライド「分布に影響する要因（タンパク質結合）」の記述どおりで正しい。","slide":"分布に影響する要因 ― タンパク質結合"},{"r":2,"t":"化学物質の体内動態","q":8,"text":"胎児では血液-脳関門が発達しているため、鉛やメチル水銀の脳内濃度はむしろ成人より低下することが知られている。","ans":false,"exp":"胎児では血液-脳関門が未熟であるため、鉛やメチル水銀などの脳内濃度がむしろ上昇することが知られている（発達している、ではなく未熟）。","slide":"血液-臓器関門"},{"r":2,"t":"化学物質の体内動態","q":9,"text":"腎臓の糸球体では、血漿タンパク質と結合していない分子量約60,000以下の分子がろ過されて原尿へ移行する。カドミウムは重金属解毒タンパク質メタロチオネインと結合したまま近位尿細管で再吸収され、メタロチオネインが分解されると上皮細胞内で毒性を発現する。","ans":true,"exp":"スライド「尿への排泄（糸球体ろ過と尿細管再吸収）」の記述どおりで正しい。","slide":"尿への排泄① 糸球体ろ過・尿細管再吸収"},{"r":2,"t":"化学物質の体内動態","q":10,"text":"一般に、分子量が350以下の化学物質は胆汁へ、分子量が350〜700くらいの化学物質は尿へ排泄される。","ans":false,"exp":"正しくは逆で、分子量350以下の化学物質は尿へ、分子量350〜700くらいの化学物質は胆汁へ排泄される。","slide":"胆汁への排泄と腸肝循環"},{"r":3,"t":"化学物質の代謝","q":1,"text":"化学物質の代謝反応は、加水分解・酸化・還元反応からなる第Ⅰ相反応と、抱合反応からなる第Ⅱ相反応に分けて考えることができる。多くの場合、まず第Ⅰ相反応が起こり、次いで第Ⅱ相反応が進行する。","ans":true,"exp":"スライド「化学物質の代謝とは」「第Ⅰ相反応・第Ⅱ相反応と代謝活性化」の記述どおりで正しい（フェノールのように例外もある）。","slide":"化学物質の代謝とは／第Ⅰ相反応・第Ⅱ相反応と代謝活性化"},{"r":3,"t":"化学物質の代謝","q":2,"text":"エタノール代謝において、日本人の約50%はALDH2の活性が低く、アセトアルデヒドから酢酸への変換効率が低いため、日本人はアルコール中毒（依存症）の頻度が欧米人より高くなることが知られている。","ans":false,"exp":"ALDH2活性が低いとアセトアルデヒドが蓄積しやすく、頭痛や赤面（フラッシング反応）を呈する人が多くなるが、逆にこれが飲酒への忌避につながるため、アルコール中毒の割合はむしろ低いとされる（記述が逆）。","slide":"アルデヒド脱水素酵素（ALDH）と日本人の特性"},{"r":3,"t":"化学物質の代謝","q":3,"text":"CYPの分子種命名では、アミノ酸相同性40%を超える分子種を数字で表す「ファミリー」、55%を超えるものを英文字で表す「サブファミリー」とし、サブファミリー内の分子種は再度数字で表す（例：CYP1A2）。","ans":true,"exp":"スライド「CYPの分子種と命名規則」の記述どおりで正しい。","slide":"CYPの分子種と命名規則"},{"r":3,"t":"化学物質の代謝","q":4,"text":"FMO（フラビン含有モノオキシゲナーゼ）は小胞体に局在する酵素で、FMO3の遺伝子多型により活性が低下すると、食事由来のトリメチルアミンが代謝されずに尿や汗ににおいが生じる「魚臭症」を呈することがある。","ans":true,"exp":"スライド「フラビン含有モノオキシゲナーゼ（FMO）と魚臭症」の記述どおりで正しい。","slide":"フラビン含有モノオキシゲナーゼ（FMO）と魚臭症"},{"r":3,"t":"化学物質の代謝","q":5,"text":"グルクロン酸抱合はUGTにより、UDPGAのグルクロン酸を異物に転移する反応であるが、この転移反応はSN2様式の求核置換反応であるため、生じる抱合体は必ずα-グルクロニドとなる。","ans":false,"exp":"UDPGAはUDPがα位に結合しており、SN2様式の求核置換反応により立体が反転するため、抱合体は必ずβ-グルクロニドとなる（α-グルクロニドではない）。","slide":"a. グルクロン酸抱合　①反応のしくみ"},{"r":3,"t":"化学物質の代謝","q":6,"text":"硫酸抱合の硫酸供与体である活性硫酸（PAPS）は、システインと2分子のATPから産生されるが、その生合成には限界があり活性が低下しやすい。その場合はグルクロン酸抱合など他の代謝系で補われる。","ans":true,"exp":"スライド「b. 硫酸抱合」の記述どおりで正しい。","slide":"b. 硫酸抱合"},{"r":3,"t":"化学物質の代謝","q":7,"text":"メチル抱合は抱合反応の中でも水溶性を低下させることがある点で特徴的であり、抗がん薬である6-メルカプトプリン（6-MP）はカテコールO-メチルトランスフェラーゼ（COMT）により不活性化される。","ans":false,"exp":"前半のメチル抱合の特徴（水溶性を低下させることがある）は正しいが、6-MPを不活性化するのはCOMTではなくチオプリンメチルトランスフェラーゼ（TPMT）である。TPMTには遺伝子多型があり、6-MPの作用に個人差が生じる。","slide":"c. メチル抱合"},{"r":3,"t":"化学物質の代謝","q":8,"text":"アセチル抱合を担うNAT2の活性が低い個体（スロー・アセチレーター）では、イソニアジドなどの薬剤による神経障害のリスクが高くなることが知られている。","ans":true,"exp":"スライド「d. 遺伝子多型　②CYPとNAT2の遺伝子多型」の記述どおりで正しい。","slide":"d. 遺伝子多型　②CYPとNAT2の遺伝子多型"},{"r":3,"t":"化学物質の代謝","q":9,"text":"肝臓のCYPについて、胎児期にはCYP3A4が主要なアイソザイムであるが、成人になるとCYP3A7が主要なアイソザイムとなり、量的・質的な変化がみられる。","ans":false,"exp":"記述が逆で、胎児期に主要なのはCYP3A7、成人期に主要なのはCYP3A4である。","slide":"a. 加齢　②代謝・排泄への影響"},{"r":3,"t":"化学物質の代謝","q":10,"text":"胆汁酸は通常グリシンやタウリンとの抱合体として存在しており、ヒトでは胆汁酸の大部分（約3分の2）がタウロコール酸として存在している。","ans":false,"exp":"正しくは逆で、ヒトの胆汁酸の3分の2はグリシン抱合体であるグリココール酸として、3分の1はタウリン抱合体であるタウロコール酸として存在している。","slide":"e. アミノ酸抱合"},{"r":4,"t":"発がん物質の代謝的活性化","q":1,"text":"一次発がん物質（直接発がん物質）とは、代謝活性化を受けることなくそれ自身が究極発がん物質である物質を指す。","ans":true,"exp":"スライド「一次発がん物質と二次発がん物質」の記述どおりで正しい。なお、それ自身は不活性で生体内の代謝酵素により活性化されて初めてDNAへの結合性を獲得するものは二次発がん物質（前駆物質）と呼ばれる。","slide":"一次発がん物質と二次発がん物質"},{"r":4,"t":"発がん物質の代謝的活性化","q":2,"text":"シクロホスファミドは肝臓のCYP2B6やCYP3A4により4-ヒドロキシ化を受けてホスホラミドマスタードへと変換されて活性化し、代謝の過程でアクロレインが副生成物として生じる。","ans":true,"exp":"スライド「臨床応用：シクロホスファミド・イホスファミド」の記述どおりで正しい。アクロレインは膀胱毒性（出血性膀胱炎）の原因であり、メスナ併用でこれを無毒化できる。","slide":"臨床応用：シクロホスファミド・イホスファミド"},{"r":4,"t":"発がん物質の代謝的活性化","q":3,"text":"CYP1A2の活性の個体差は約60倍にも及ぶとされ、活性が高い人ほど膀胱がんの感受性が高いと考えられている。","ans":false,"exp":"信頼できる薬理学文献では、CYP1A2活性の個体差は「約10〜15倍」程度とされており、「60倍」という数値は裏付けが取れない。活性が高いほど膀胱がん感受性が高いという関係性自体は正しい。","slide":"CYP1A2・NAT1・NAT2の個人差と膀胱がん感受性"},{"r":4,"t":"発がん物質の代謝的活性化","q":4,"text":"O6-メチルdGは、DNA複製の際にシトシンの代わりにチミンを取り込みG:C→A:Tの突然変異を誘発するが、DNA修復酵素MGMT（O6-メチルグアニンDNAメチルトランスフェラーゼ）によって除去される。","ans":true,"exp":"スライド「DNA塩基修飾による発がんとその防御機構」の記述どおりで正しい。不完全な修復によりO6-メチルdGをもつ細胞が残る場合には、アポトーシスにより排除されることで発がんが抑制される。","slide":"DNA塩基修飾による発がんとその防御機構"},{"r":4,"t":"発がん物質の代謝的活性化","q":5,"text":"ベンゾ[a]ピレンの究極発がん物質であるBPDE（7,8-ジオール-9,10-エポキシド体）は、IARCの発がん性分類でグループ2Aに分類されている。","ans":false,"exp":"BPDEはヒト肺がんとの直接的関係が指摘されており、IARCの分類は「グループ1」（ヒトに対する発がん性が認められる、最も強い区分）である。","slide":"①エポキシド体の形成：ベンゾ[a]ピレン／本講義に登場する物質のIARC発がん性分類"},{"r":4,"t":"発がん物質の代謝的活性化","q":6,"text":"2012年に発覚した大阪の印刷事業所における胆管がん集団発生では、インクの洗浄剤として用いられていた1,2-ジクロロプロパンが最も強く関与した物質と判断されており、ジクロロメタンへの併用曝露もあった。","ans":true,"exp":"スライド「コラム：印刷事業所における胆管がん集団発生」の記述どおりで正しい。この事例を受け、IARCは1,2-ジクロロプロパンをグループ3からグループ1へ、ジクロロメタンをグループ2Bからグループ2Aへ引き上げた。","slide":"コラム：印刷事業所における胆管がん集団発生"},{"r":4,"t":"発がん物質の代謝的活性化","q":7,"text":"スチレンモノマーは2018年のIARC再評価によってグループ2Bからグループ1へ引き上げられた。","ans":false,"exp":"2018年の再評価で引き上げられた先は「グループ1」ではなく「グループ2A」である（職業曝露コホートでのリンパ造血系腫瘍の増加が根拠、ヒトでの証拠は限定的）。","slide":"①エポキシド体の形成：スチレンモノマー／本講義に登場する物質のIARC発がん性分類"},{"r":4,"t":"発がん物質の代謝的活性化","q":8,"text":"フェナセチンの販売中止は、製薬企業の自主規制だけでなく、米国FDAによる一般用医薬品での使用禁止（1983年）や日本の厚生労働省による供給中止要請（2001年）など各国の行政措置を経たものである。","ans":true,"exp":"スライド「コラム：膀胱がんと関連のある医薬品」の記述どおりで正しい。フェナセチンは過剰投与が長期間続くと腎盂および膀胱腫瘍を誘発することが明らかになり、各国の行政措置により現在は販売が中止されている。","slide":"コラム：膀胱がんと関連のある医薬品"},{"r":4,"t":"発がん物質の代謝的活性化","q":9,"text":"アフラトキシンB1に関連する血清中抗p53抗体の測定は、2001年より食道がん・大腸がん・乳がんの腫瘍マーカー検査として保険適用されている。","ans":false,"exp":"正しくは「2007年」より保険適用されている。アフラトキシンB1の活性代謝物はp53の249番目のコドンでG:T塩基対置換を誘発し、p53タンパク質の構造変化により血清中p53の半減期が延長して抗p53抗体が出現する。","slide":"①エポキシド体の形成：アフラトキシンB1"},{"r":4,"t":"発がん物質の代謝的活性化","q":10,"text":"N-ジメチルニトロソアミン（NDMA）はIARCグループ2Bに、サイカシンはIARCグループ2Aに分類されている。","ans":false,"exp":"記述が逆である。正しくはNDMAがグループ2A（ヒト疫学研究で発がん性が示唆）、サイカシンがグループ2B（究極活性体メチレニウムイオンを生成）である。","slide":"③メチレニウムイオン（CH3+）の生成／本講義に登場する物質のIARC発がん性分類"},{"r":5,"t":"多段階発がんと遺伝毒性試験","q":1,"text":"Ames試験は、ヒスチジンがないと生育できないように変異させたネズミチフス菌（Salmonella Typhimurium）などを用い、変異原性物質を作用させると、菌が分裂する過程でもとのアミノ酸非要求性株に戻る復帰突然変異を利用した試験である。","ans":true,"exp":"スライド「a. 微生物を用いる復帰突然変異試験（Ames試験）①」の記述どおりで正しい。Ames博士が開発した変異原性試験で、「化審法」や「労働安全衛生法」でも化学物質の安全性評価に用いられている。","slide":"a. 微生物を用いる復帰突然変異試験（Ames試験）①"},{"r":5,"t":"多段階発がんと遺伝毒性試験","q":2,"text":"小核試験は哺乳類培養細胞（チャイニーズハムスター細胞など）を用いるin vitro試験であり、骨髄または末梢血の幼若赤血球中の染色分体断片（小核）を検出するのは、哺乳類培養細胞を用いる染色体異常試験のほうである。","ans":false,"exp":"記述が逆である。小核試験は<strong>げっ歯類（マウス）を用いるin vivo試験</strong>で、骨髄または末梢血の幼若赤血球中の小核を検出する。哺乳類培養細胞をコルヒチンなどで処理しM期で細胞周期を停止させて染色体の構造異常・数的異常を観察するのは染色体異常試験である。","slide":"b. 哺乳類培養細胞を用いる染色体異常試験／c. げっ歯類を用いる小核試験"},{"r":5,"t":"多段階発がんと遺伝毒性試験","q":3,"text":"Ames試験の判定では、一般に被検物質投与群のコロニー数が溶媒対照群の5倍以上で、かつ用量依存性がみられる場合に陽性と判定する。","ans":false,"exp":"正しい判定基準は「<strong>2倍以上</strong>」である（用量依存性がみられる場合）。","slide":"a. 微生物を用いる復帰突然変異試験（Ames試験）③"},{"r":5,"t":"多段階発がんと遺伝毒性試験","q":4,"text":"コメットアッセイ（単細胞ゲル電気泳動法）は1988年にSinghらによって開発された手法で、DNA切断部位やアルカリ感受性部位を指標としてDNAへの初期損傷を検出する。","ans":true,"exp":"スライド「d. コメットアッセイ①：原理」の記述どおりで正しい。非常に少ない細胞試料で短時間（5〜6時間）で試験ができ、すべての有核細胞が解析対象となる点も特徴である。","slide":"d. コメットアッセイ①：原理"},{"r":5,"t":"多段階発がんと遺伝毒性試験","q":5,"text":"2,3,7,8-TCDDは強い遺伝毒性によって直接DNAを損傷するイニシエーターの代表例であり、イニシエーション活性をもつことが知られている。","ans":false,"exp":"2,3,7,8-TCDDそれ自身の発がん性は比較的弱く、遺伝子に対する直接作用ではなく<strong>プロモーション作用</strong>と考えられている。非遺伝毒性発がん物質は、イニシエーション活性はなく、プロモーション活性のみを有すると考えられている。","slide":"プロモーション①：定義と性質／プロモーション②：主な発がんプロモーターの構造"},{"r":5,"t":"多段階発がんと遺伝毒性試験","q":6,"text":"多段階発がんは、DNA損傷・遺伝子突然変異が生じる「イニシエーション」、変異細胞が増殖して前がん状態になる「プロモーション」、さらなる遺伝子異常の蓄積により悪性化する「プログレッション」という3つの過程をたどる。","ans":true,"exp":"スライド「③多段階発がん過程：「発がん」の3段階とは」の記述どおりで正しい。","slide":"③多段階発がん過程：「発がん」の3段階とは"},{"r":5,"t":"多段階発がんと遺伝毒性試験","q":7,"text":"大腸がんの多段階発がんでは、まずがん抑制遺伝子APCの変異により腺腫が形成され、続いてがん遺伝子K-rasの変異で増殖腺腫となり、さらにp53・DCCの変異が加わることで腺がんに至るとされる。","ans":true,"exp":"スライド「大腸がんにみる多段階発がんの実例」（図V-1-94）の記述どおりで正しい。複数のがん遺伝子・がん抑制遺伝子に経時的に変異が蓄積することで段階的にがん化が進行する代表例である。","slide":"大腸がんにみる多段階発がんの実例"},{"r":5,"t":"多段階発がんと遺伝毒性試験","q":8,"text":"BRCA1・BRCA2はがん遺伝子に分類され、その変異産物が恒常的なチロシンキナーゼ活性を獲得することでがん化を促進する。","ans":false,"exp":"BRCA1・BRCA2はDNA修復に関与する<strong>がん抑制遺伝子</strong>であり、がん遺伝子ではない。恒常的なチロシンキナーゼ活性の獲得によりがん化を促進するのは、bcr-ablやEML4-ALKなどの融合遺伝子（がん遺伝子）である。","slide":"BRCA1／BRCA2と遺伝性乳がん卵巣がん症候群／代表的ながん遺伝子②：融合遺伝子"},{"r":5,"t":"多段階発がんと遺伝毒性試験","q":9,"text":"がん抑制遺伝子p53の変異はLi-Fraumeni症候群に関連し、がん遺伝子RBの変異は網膜芽細胞腫に関連する。","ans":false,"exp":"RBは「がん遺伝子」ではなく「<strong>がん抑制遺伝子</strong>」である（細胞周期抑制に働く）。p53の変異がLi-Fraumeni症候群に関連する点は正しいが、RBの分類が誤っている。","slide":"代表的ながん抑制遺伝子"},{"r":5,"t":"多段階発がんと遺伝毒性試験","q":10,"text":"マイクロサテライト領域の異常によるDNAミスマッチ修復酵素の機能欠損は遺伝性非ポリポーシス性大腸がん（リンチ症候群）の原因と考えられており、DNA除去修復酵素の機能欠損を示す色素性乾皮症では皮膚がんを好発する。","ans":true,"exp":"スライド「ゲノム不安定性とDNA修復酵素の機能欠損」の記述どおりで正しい。いずれも修復エラーに起因するゲノム不安定性が発がんに関係する例である。","slide":"ゲノム不安定性とDNA修復酵素の機能欠損"},{"r":6,"t":"化学物質の臓器特異的な毒性発現機構","q":1,"text":"ヒトの肝臓は体重の約50分の1を占める体内最大の臓器であり、経口摂取された化学物質は消化管から門脈を経て肝臓に入るため、血流量の多さから他の臓器より影響を受けやすい。","ans":true,"exp":"スライド「①肝臓１：特徴と3つの障害分類」の記述どおりで正しい。肝臓における化学物質性障害は、脂肪肝・肝細胞障害・胆汁うっ滞の3つに分類される。","slide":"①肝臓１：特徴と3つの障害分類"},{"r":6,"t":"化学物質の臓器特異的な毒性発現機構","q":2,"text":"ケイ酸の微粒子はマクロファージに貪食されてもリソソームで分解されず、リソソーム酵素の漏出によりマクロファージ自体が傷害される。傷害されたマクロファージから放出された因子が線維芽細胞を増殖させることで、けい肺という肺線維症が引き起こされる。","ans":true,"exp":"スライド「③肺１：けい肺とアスベスト」の記述どおりで正しい。アスベスト（繊維状のケイ酸マグネシウム）も同様の機序でマクロファージを傷害し、肺の炎症と線維化を引き起こし、曝露後20〜40年で中皮腫や肺がんを発生させる。","slide":"③肺１：けい肺とアスベスト"},{"r":6,"t":"化学物質の臓器特異的な毒性発現機構","q":3,"text":"メラミンは生体内で酸化的に代謝されてシュウ酸となり、それが尿中のカルシウムと結合してシュウ酸カルシウムの結晶として析出し、尿路を閉塞する。","ans":false,"exp":"この代謝的活性化を経て結晶を生じるのは<strong>エチレングリコール</strong>である。メラミンとシアヌル酸は生体内でほとんど代謝を受けず、未変化体のまま尿中で結晶（メラミン-シアヌル酸複合体）を形成して尿路結石・腎障害を引き起こす点が異なる。","slide":"腎臓２：閉塞性腎障害"},{"r":6,"t":"化学物質の臓器特異的な毒性発現機構","q":4,"text":"アセトアミノフェンを過量に摂取すると、常用量・中等量で生じるグルクロン酸抱合・硫酸抱合・グルタチオン抱合の処理能力を超え、グルタチオンが枯渇することで、抱合されなかった代謝活性化体が細胞内の生体高分子と結合し、肝細胞障害（細胞死）を引き起こす。","ans":true,"exp":"スライド「肝臓４：アセトアミノフェンの代謝活性化」の記述どおりで正しい。中等量ではシトクロムP450による水酸化反応で活性化体（N-アセチル-p-ベンゾキノンイミン）を生じるが、通常はグルタチオン抱合を受けてメルカプツール酸として尿中に排泄される。","slide":"肝臓４：アセトアミノフェンの代謝活性化"},{"r":6,"t":"化学物質の臓器特異的な毒性発現機構","q":5,"text":"一酸化炭素はヘモグロビンと強固に結合して酸素の運搬を阻害することで脳組織を障害するのに対し、青酸やジニトロフェノールはATP産生を阻害することで脳組織を障害する。神経細胞はエネルギーを蓄積する機能をもたないため、常に酸素とグルコースの供給が必要である。","ans":true,"exp":"スライド「④神経系１：エネルギー代謝依存性とCO・青酸中毒」の記述どおりで正しい。神経細胞のエネルギー代謝依存性の高さが、これらの化学物質に対する脆弱性の背景にある。","slide":"④神経系１：エネルギー代謝依存性とCO・青酸中毒"},{"r":6,"t":"化学物質の臓器特異的な毒性発現機構","q":6,"text":"メトヘモグロビンは、ヘモグロビンの二価の鉄イオン（Fe2+）が酸化されて生じ、酸素との結合能力が高まることで組織への酸素供給を促進する。","ans":false,"exp":"メトヘモグロビン（Fe3+）は、むしろ酸素との<strong>結合能力を失う</strong>ため、組織への酸素供給が障害される（メトヘモグロビン血症）。アニリンの酸化やニトロベンゼンの還元で生成するフェニルヒドロキシルアミンなどがこれを誘発する。","slide":"⑤血液１：血液成分に対する毒性"},{"r":6,"t":"化学物質の臓器特異的な毒性発現機構","q":7,"text":"麻薬であるメペリジン類誘導体の合成過程で副生成物として生じたMPTPは、血液-脳関門を通過した後、脳のグリア細胞内でMPP+に代謝され、ドーパミン作動性神経細胞に特異的に取り込まれてミトコンドリアの機能を障害し、パーキンソン病様症状を引き起こす。","ans":true,"exp":"スライド「神経系３：MPTP誘発パーキンソン病様症状」の記述どおりで正しい。","slide":"神経系３：MPTP誘発パーキンソン病様症状"},{"r":6,"t":"化学物質の臓器特異的な毒性発現機構","q":8,"text":"光アレルギー性皮膚炎は化学物質の濃度・接触時間に依存して誰にでも起こりうるのに対し、光毒性皮膚炎は光化学反応により感作を受けた一部の個体にのみ起こる。","ans":false,"exp":"記述が逆である。<strong>光毒性皮膚炎</strong>は用量依存的に誰にでも起こりうるのに対し、<strong>光アレルギー性皮膚炎</strong>はハプテンとなった化学物質が光化学反応により完全抗原となり、感作を受けた一部の個体にのみ起こる。これは刺激性皮膚炎とアレルギー性皮膚炎の関係と同様である。","slide":"皮膚２：光毒性皮膚炎と光アレルギー性皮膚炎"},{"r":6,"t":"化学物質の臓器特異的な毒性発現機構","q":9,"text":"鉛はδ-アミノレブリン酸をポルホビリノーゲンに代謝するアミノレブリン酸脱水酵素（ALAD）を阻害してヘムの合成を低下させるため、尿中δ-アミノレブリン酸量は初期の鉛曝露の指標となる。","ans":true,"exp":"スライド「血液３：造血障害②　鉄欠乏性貧血と鉛中毒」の記述どおりで正しい。鉄欠乏性貧血はヘムの生合成系の阻害によりヘム鉄の供給が低下し、赤芽球が赤血球まで分化できずに崩壊することで発症する。","slide":"血液３：造血障害②　鉄欠乏性貧血と鉛中毒"},{"r":6,"t":"化学物質の臓器特異的な毒性発現機構","q":10,"text":"アセトアミノフェンによる肝細胞障害はハプテンを介したアレルギー反応によるものであり、曝露量に依存せず個体差が大きいのが特徴である。","ans":false,"exp":"アセトアミノフェンは、ブロモベンゼンや四塩化炭素と同様に<strong>直接的</strong>に肝細胞障害を引き起こす代表的な化学物質であり、曝露された化学物質の<strong>用量に依存</strong>して出現する。ハロタンやイソニアジドのように代謝活性化産物がハプテンとして作用し、用量に依存せず個体差の大きいアレルギー性機序を示すものとは異なる。","slide":"肝臓３：肝細胞障害①　直接的機序／肝臓５：肝細胞障害②　アレルギー性機序"},{"r":7,"t":"代表的な化学物質の毒性①：金属各論","q":1,"text":"イタイイタイ病は、富山県神通川流域において、鉱山由来の汚染水で灌漑された米などを住民が長年にわたり摂取し、カドミウムに汚染されたことによって発症したと考えられている。","ans":true,"exp":"スライド「b. カドミウム①：曝露源」の記述どおりで正しい。日常的な曝露源としては米からのカドミウム摂取量が最も多く、全体の約40%を占める。","slide":"b. カドミウム①：曝露源"},{"r":7,"t":"代表的な化学物質の毒性①：金属各論","q":2,"text":"鉛中毒の診断では、血清中のALAD（δ-アミノレブリン酸脱水酵素）活性の低下、血清や尿中のALA（δ-アミノレブリン酸）の増加、尿や赤血球中のコプロポルフィリン・プロトポルフィリンの増加が指標として利用される。","ans":true,"exp":"スライド「c. 鉛③：貧血の2つの機序と小児への影響」の記述どおりで正しい。鉛はヘム合成経路のALAD・フェロキラターゼを阻害するため、これらの代謝中間体が蓄積・排泄される。","slide":"c. 鉛③：貧血の2つの機序と小児への影響"},{"r":7,"t":"代表的な化学物質の毒性①：金属各論","q":3,"text":"メチル水銀は生体内でメタロチオネインと結合して複合体を形成し、この複合体が血液-脳関門のアミノ酸輸送体に誤って認識されることで脳内に移行する（いわゆる「トロイの木馬機構」）。","ans":false,"exp":"メチル水銀は<strong>メタロチオネインとは結合しない</strong>。メチル水銀がシステインと結合すると、必須アミノ酸であるメチオニンに類似した構造になるため、アミノ酸輸送体に誤って認識され血液-脳関門を通過すると考えられている（トロイの木馬機構）。メタロチオネインとの結合は、カドミウムや無機水銀の解毒機構で中心的な役割を果たす。","slide":"a. 水銀②：血液-脳関門通過の分子機構"},{"r":7,"t":"代表的な化学物質の毒性①：金属各論","q":4,"text":"トリブチルスズ（TBT）やトリフェニルスズ（TPT）などの有機スズ化合物は内分泌かく乱作用を有し、巻貝類（イボニシなど）の雄化の原因物質として知られている。","ans":true,"exp":"スライド「e. スズ：有機スズ化合物の内分泌かく乱作用」の記述どおりで正しい。これらは船底や漁網の防汚剤として使用されてきたが、現在は化審法により規制されている。","slide":"e. スズ：有機スズ化合物の内分泌かく乱作用"},{"r":7,"t":"代表的な化学物質の毒性①：金属各論","q":5,"text":"ヒ素のメチル化代謝は長らく解毒機構と考えられてきたが、近年の研究により、メチル化の中間体である三価のメチル化代謝物（モノメチル亜ヒ酸・ジメチル亜ヒ酸）が強い細胞毒性や遺伝子傷害性を示すことが明らかとなり、現在ではメチル化は代謝的活性化のプロセスと考えられている。","ans":true,"exp":"スライド「d. ヒ素③：メチル化代謝は解毒か代謝的活性化か」の記述どおりで正しい。第4回で学んだ発がん物質の代謝的活性化と同じ構図として理解するとよい。","slide":"d. ヒ素③：メチル化代謝は解毒か代謝的活性化か"},{"r":7,"t":"代表的な化学物質の毒性①：金属各論","q":6,"text":"有機鉛化合物である四エチル鉛は、揮発性や脂溶性が低いため皮膚や気道からはほとんど吸収されず、専ら消化管からの吸収が主要な曝露経路である。","ans":false,"exp":"四エチル鉛は、むしろ<strong>揮発性かつ脂溶性が高い</strong>ため、経気道的または経皮的に容易に吸収される。過去にアンチノック剤としてガソリンに添加され、体内では血液-脳関門を通過して中枢神経障害を引き起こした。","slide":"c. 鉛④：有機鉛（四エチル鉛）"},{"r":7,"t":"代表的な化学物質の毒性①：金属各論","q":7,"text":"カドミウムは体内でメタロチオネインと結合して蓄積するため、摂取・吸収量にかかわらず腎毒性を示すことはない。","ans":false,"exp":"カドミウムはメタロチオネインと結合している間は毒性を示さない形で蓄積されるが、<strong>摂取・吸収量がメタロチオネインの誘導能を上回った場合には、はじめて腎毒性（近位尿細管障害）が現れる</strong>。腎臓ではこの機構により、他の臓器よりも高濃度のカドミウムが蓄積しやすい。","slide":"b. カドミウム②：メタロチオネインによる解毒"},{"r":7,"t":"代表的な化学物質の毒性①：金属各論","q":8,"text":"1998年に発生した和歌山毒物カレー事件で使用された毒物は、茨城県神栖市の井戸水汚染事件で検出されたものと同じ、有機ヒ素化合物のジフェニルアルシン酸であった。","ans":false,"exp":"和歌山毒物カレー事件で使用されたのは<strong>無機ヒ素化合物である三酸化ヒ素（亜ヒ酸）</strong>であり、4名が死亡、63名が中毒した。ジフェニルアルシン酸（DPAA）は2003年に茨城県神栖市で井戸水から検出された別の事件の原因物質であり、両者は異なる化合物・異なる事件である。","slide":"d. ヒ素①：性質と事件史"},{"r":7,"t":"代表的な化学物質の毒性①：金属各論","q":9,"text":"妊娠中の母体がメチル水銀を摂取すると、母体にはほとんど重篤な症状がみられない曝露量であっても、胎盤を通じて胎児に移行し、運動失調や神経発達障害を引き起こす「胎児性水俣病」を生じることがある。","ans":true,"exp":"スライド「a. 水銀①：メチル水銀の体内動態」の記述どおりで正しい。母体血液-胎盤関門を通過しやすいメチル水銀の性質を反映した、水俣病の重要な特徴の1つである。","slide":"a. 水銀①：メチル水銀の体内動態"},{"r":7,"t":"代表的な化学物質の毒性①：金属各論","q":10,"text":"三酸化ヒ素製剤（トリセノックス）は急性リンパ性白血病（ALL）の治療薬であり、白金製剤と同様にDNA鎖間に架橋を形成することでがん細胞の分裂を阻害する。","ans":false,"exp":"三酸化ヒ素製剤は<strong>急性前骨髄球性白血病（APL）</strong>の再発・難治例に用いられる薬剤であり、作用機序はDNA架橋ではなく、白血病の原因となる融合タンパクPML-RARαの分解やアポトーシス誘導によるものと考えられている。DNA鎖内・鎖間への架橋形成はシスプラチンなどの白金製剤の機序である。","slide":"コラム：重金属・金属を用いた医薬品②　三酸化ヒ素製剤"},{"r":8,"t":"代表的な化学物質の毒性②：農薬・POPs・内分泌かく乱物質と生体の防御機構","q":1,"text":"有機リン系農薬は、アセチルコリンエステラーゼ（AChE）の活性中心（セリン残基）をリン酸化することで酵素を不可逆的に阻害する殺虫剤であり、フェニトロチオン（MEP）やマラチオンなどが代表例である。","ans":true,"exp":"スライド「1）有機リン系農薬」の記述どおりで正しい。酵素阻害が不可逆的であるため、治療薬であるPAM（プラリドキシム）による再活性化は中毒後早期でないと効果が乏しく、時間経過とともに「エイジング」と呼ばれる現象が起こるとPAMが無効になる。","slide":"1）有機リン系農薬"},{"r":8,"t":"代表的な化学物質の毒性②：農薬・POPs・内分泌かく乱物質と生体の防御機構","q":2,"text":"カーバメート系農薬による中毒では、酵素阻害が可逆的であるにもかかわらず、カルバモイル化されたAChEに対してもPAMは有効な再活性化薬として積極的に使用される。","ans":false,"exp":"カーバメート系農薬によるAChE阻害は<strong>可逆的</strong>であり、中毒の持続時間も有機リン系農薬に比べて短い。治療にはアトロピンが有効だが、<strong>PAMはカルバモイル化されたAChEに対する再活性化効果が乏しいとされ、通常は使用されない</strong>。","slide":"カーバメート中毒の特徴"},{"r":8,"t":"代表的な化学物質の毒性②：農薬・POPs・内分泌かく乱物質と生体の防御機構","q":3,"text":"モノフルオロ酢酸ナトリウムは、アセチルコリンエステラーゼを強力に阻害することで過興奮や呼吸困難などの中毒症状を引き起こす、有機リン系農薬と同じ作用機序をもつ殺鼠剤である。","ans":false,"exp":"モノフルオロ酢酸ナトリウムはAChE阻害薬ではない。生体内で酢酸と同様に代謝されてモノフルオロクエン酸となり、クエン酸回路（TCA回路）で<strong>アコニターゼの活性を阻害</strong>することで、ATP産生の停止とクエン酸の蓄積を引き起こす、まったく異なる作用機序をもつ「毒物及び劇物取締法」上の特定毒物である。","slide":"8）有機フッ素系農薬"},{"r":8,"t":"代表的な化学物質の毒性②：農薬・POPs・内分泌かく乱物質と生体の防御機構","q":4,"text":"パラコートイオンはNADPHにより1電子還元されてパラコートラジカルとなり、酸素に電子を渡してスーパーオキシドアニオンを生成すると同時にパラコートイオンを再生する、という循環的な酸化還元反応を繰り返すことで活性酸素を産生し細胞傷害を引き起こす。","ans":true,"exp":"スライド「パラコートによる毒性発現の機構」の記述どおりで正しい。この循環反応によりNADPHが消費され続けるとともに活性酸素が連続的に産生される点が、パラコート中毒の本質的な毒性機構である。選択的な解毒薬は存在せず、肺に取り込まれたパラコートにより不可逆的な肺線維症を生じることが知られている。","slide":"パラコートによる毒性発現の機構／パラコート中毒の臨床経過"},{"r":8,"t":"代表的な化学物質の毒性②：農薬・POPs・内分泌かく乱物質と生体の防御機構","q":5,"text":"ネオニコチノイド系農薬が昆虫に選択的に強い毒性を示すのは、哺乳類のnAChRサブタイプ（α4β2など）に比べて、昆虫のnAChRに対する親和性がはるかに高いためである。","ans":true,"exp":"スライド「ネオニコチノイド系農薬の昆虫選択性」の記述どおりで正しい。IC50を比較すると、昆虫のnAChRに対する親和性は哺乳類の受容体に対する親和性よりも数百〜数千倍高く、この差が昆虫選択性（ヒトなど哺乳類への相対的な安全性）の根拠となっている。","slide":"ネオニコチノイド系農薬の昆虫選択性"},{"r":8,"t":"代表的な化学物質の毒性②：農薬・POPs・内分泌かく乱物質と生体の防御機構","q":6,"text":"ピレスロイド系農薬は、哺乳類がカルボキシルエステラーゼなどによる代謝を受けにくいのに対し、昆虫は代謝を受けやすいため、哺乳類に対する毒性のほうが昆虫に対する毒性よりも強いと考えられている。","ans":false,"exp":"実際は逆で、<strong>哺乳類はカルボキシルエステラーゼによる加水分解などの代謝を受けやすく、昆虫に比べて毒性は比較的低い</strong>とされる。ピレスロイドは神経軸索のナトリウムチャネルの閉鎖を遅延させて神経伝達をかく乱するが、この代謝差が昆虫選択性の一因となっている。","slide":"ピレスロイド系農薬の作用機構と中毒症状"},{"r":8,"t":"代表的な化学物質の毒性②：農薬・POPs・内分泌かく乱物質と生体の防御機構","q":7,"text":"PCB（ポリ塩化ビフェニル）の毒作用は、オルト位に塩素置換をもたないか1個のみで偏平な構造をとる「コプラナーPCB」においてとくに顕著にみられる。","ans":true,"exp":"スライド「PCBによる健康被害と規制」の記述どおりで正しい。コプラナーPCBは平面構造をとることでダイオキシン類と類似した毒性発現機構を示すため、毒性評価の面でもダイオキシン類と合わせて扱われることが多い（ダイオキシン類対策特別措置法でもコプラナーPCBをダイオキシン類に含めて定義している）。","slide":"PCBによる健康被害と規制／C．ダイオキシン類"},{"r":8,"t":"代表的な化学物質の毒性②：農薬・POPs・内分泌かく乱物質と生体の防御機構","q":8,"text":"ダイオキシン類は、PCBと同様に特定の工業製品の原料として意図的に製造・使用されてきた化学物質であり、「化審法」に基づく第一種特定化学物質として製造・使用が規制されている。","ans":false,"exp":"ダイオキシン類は意図的に製造される物質ではなく、ごみ焼却炉での<strong>不完全燃焼（300〜600℃付近）などで非意図的に生成する非意図的生成物質</strong>であり、「化審法」の規制対象外である。800℃以上の高温・酸素過剰条件での燃焼により発生を防止できるとされ、2000（平成12）年施行の「ダイオキシン類対策特別措置法」によって規制されている。","slide":"ダイオキシン類の発生源と毒性評価"},{"r":8,"t":"代表的な化学物質の毒性②：農薬・POPs・内分泌かく乱物質と生体の防御機構","q":9,"text":"メタロチオネインは非常にシステインに富んだ低分子量タンパク質であり、すべてのシステイン残基のSH基が遊離しているため、二価金属イオン（Hg、Cd、Znなど）を7分子まで結合することができる。","ans":true,"exp":"スライド「①　メタロチオネイン」の記述どおりで正しい。ヒトのMT-1/MT-2では61アミノ酸中20個がシステイン残基であり、そのすべてのSH基が遊離した状態にあるため、二価金属イオンを7分子、一価金属イオン（Cu、Agなど）であれば12分子まで結合できる。","slide":"①　メタロチオネイン"},{"r":8,"t":"代表的な化学物質の毒性②：農薬・POPs・内分泌かく乱物質と生体の防御機構","q":10,"text":"IARCは、PFOS（ペルフルオロオクタンスルホン酸）の発がん性分類をグループ1（ヒトに対して発がん性がある）とする一方、PFOA（ペルフルオロオクタン酸）はグループ2Bに分類している。","ans":false,"exp":"実際の分類は逆である。IARCはPFOA（ペルフルオロオクタン酸）を最も重いグループ1（ヒトに対して発がん性がある）、PFOS（ペルフルオロオクタンスルホン酸）をグループ2Bに分類している。なお、PFOS・PFOA・ペルフルオロヘキサンスルホン酸（PFHxS）の3物質はいずれも国内の「化審法」で第一種特定化学物質に指定されている点は共通する。","slide":"PFASの毒性と規制"},{"r":9,"t":"化学物質の有害性評価","q":1,"text":"「毒物及び劇物取締法」上の判定基準では、経口投与によるLD50が50 mg/kg以下であれば毒物に、50 mg/kgを超え300 mg/kg以下であれば劇物に分類される。","ans":true,"exp":"スライド「単回投与毒性試験の応用：毒物劇物の判定基準」の記述どおりで正しい。経皮（200 mg/kg以下／200〜1,000 mg/kg）、吸入ガス（500 ppm［4hr］以下／500〜2,500 ppm［4hr］）についても同様の基準が設けられており、いずれか一つの経路でも毒物の基準に該当すれば毒物と判定される。","slide":"単回投与毒性試験の応用：毒物劇物の判定基準"},{"r":9,"t":"化学物質の有害性評価","q":2,"text":"反復投与毒性試験のうち、亜急性毒性試験は1年以上の投与期間で実施され、慢性毒性試験は28日間または90日間の投与期間で実施される。","ans":false,"exp":"投与期間の対応が逆である。<strong>亜急性毒性試験は28日間または90日間</strong>（慢性毒性試験の投与量設定を行うためのスクリーニング試験）、<strong>慢性毒性試験は1年以上</strong>の投与期間で実施される。","slide":"a．一般毒性試験　(2) 反復投与毒性試験：亜急性・慢性"},{"r":9,"t":"化学物質の有害性評価","q":3,"text":"NOAEL（無毒性量）は、非曝露群と曝露群の統計的な有意差検定に基づいて決まるため、動物数を増やしたり用量段階を細かくしたりして試験の検出力を高めると、NOAELはより低い（厳しい）値に変化しうる。","ans":true,"exp":"スライド「NOAELの限界とベンチマークドーズ（BMD）」の記述どおりで正しい。NOAELは物質固有の生物学的な定数ではなく、試験デザイン（動物数・用量段階）に依存する値であるという限界があり、これを解消するために集団データを連続的な用量-反応曲線として扱うBMD（ベンチマークドーズ）が提唱されている。","slide":"NOAELの限界とベンチマークドーズ（BMD）"},{"r":9,"t":"化学物質の有害性評価","q":4,"text":"GHS（化学品の分類と表示に関する国際調和システム）は2003年7月に国連から勧告された文書で、通称パープルブックと呼ばれる。","ans":true,"exp":"スライド「国際的な試験ガイドラインとGHS」の記述どおりで正しい。GHSにおける化学物質分類のための安全性評価はOECD-TGに基づいて行われ、統一された表示例や安全性データシート（SDS）の作成を求める。","slide":"国際的な試験ガイドラインとGHS"},{"r":9,"t":"化学物質の有害性評価","q":5,"text":"OECD-TG451に基づく発がん性試験では、マウスの投与期間（18〜24ヵ月）の方がラットの投与期間（24〜30ヵ月）よりも長く設定される。","ans":false,"exp":"長さの対応が逆である。<strong>ラットの方が投与期間が長く（24〜30ヵ月）、マウスの方が短い（18〜24ヵ月）</strong>。いずれも動物の全生涯にわたる反復投与で、腫瘍の発生頻度・悪性腫瘍の割合の増加・腫瘍発生の早期化を対照群と比較して発がん性を調べる。","slide":"b．特殊毒性試験　(1) 発がん性試験"},{"r":9,"t":"化学物質の有害性評価","q":6,"text":"OECD-TGでの急性経口毒性試験には、固定用量法（TG420）、毒性等級法（TG423）、up-and-down法（TG425）の3つの方法が規定されている。","ans":true,"exp":"スライド「a．一般毒性試験　(1) 単回投与毒性試験」の記述どおりで正しい。食品添加物は高濃度曝露の可能性がないため単回投与毒性試験は実施されず、農薬は農家など農薬利用者の安全性確保のために実施される。","slide":"a．一般毒性試験　(1) 単回投与毒性試験（急性毒性試験）"},{"r":9,"t":"化学物質の有害性評価","q":7,"text":"生殖毒性試験は妊娠中（着床から分娩前）の母動物にのみ被験物質を投与し胎児への影響を調べる試験であり、発生毒性試験は二世代にわたって投与し生殖機能への影響を調べる試験である。","ans":false,"exp":"定義が逆である。<strong>二世代にわたって投与し、発情・交尾・受胎・分娩・哺育等の生殖機能への影響を調べるのが生殖毒性試験</strong>であり、<strong>妊娠中（着床から分娩前）の母動物に投与し胎児の発生・発育、とくに催奇形性への影響を調べるのが発生毒性試験</strong>である。","slide":"b．特殊毒性試験　(2) 生殖毒性試験・発生毒性試験"},{"r":9,"t":"化学物質の有害性評価","q":8,"text":"遺伝毒性発がん物質は、タンパク質等と結合して細胞増殖の制御機構を阻害することで発がん性を示すため、NOAELが存在すると考えられている。","ans":false,"exp":"これは非遺伝毒性発がん物質の機序の説明であり、遺伝毒性発がん物質の説明としては誤り。<strong>遺伝毒性発がん物質はDNAに直接作用して突然変異を起こすため、曝露量が0にならない限り発がんの可能性が0ではなく、閾値がなくNOAELは存在しない</strong>と考えられている。NOAELが存在するのは非遺伝毒性発がん物質の方である。","slide":"発がん物質の考え方：遺伝毒性と非遺伝毒性"},{"r":9,"t":"化学物質の有害性評価","q":9,"text":"アレルゲン性試験のうちGPMT・Buehler試験はモルモットを用いるが、LLNA（局所リンパ節試験）はマウスを用いる、より簡便で動物愛護の観点からも利用されている試験法である。","ans":true,"exp":"スライド「b．特殊毒性試験　(3) アレルゲン性試験」の記述どおりで正しい。GPMT・Buehler試験は被検物質の皮下注射・塗布による皮膚反応を評価するのに対し、LLNA法は耳介への塗布後、所属リンパ節でのリンパ球分裂を指標とし、GPMT法に比べ簡便・短時間で実施できる。","slide":"b．特殊毒性試験　(3) アレルゲン性試験（抗原性試験）"},{"r":9,"t":"化学物質の有害性評価","q":10,"text":"ベンチマークドーズ（BMD）は、非曝露群と曝露群の2群間の有意差検定に基づく指標であり、日本の厚生労働省により提唱された。","ans":false,"exp":"2点とも誤り。BMDはむしろ<strong>NOAELが2群間の有意差検定に基づくために生じる問題を解消するために提唱された</strong>、集団データを連続的な用量-反応曲線として扱う指標であり、<strong>米国EPA（環境保護庁）等により提唱</strong>されたものである。日本の厚生労働省が提唱したものではない。","slide":"NOAELの限界とベンチマークドーズ（BMD）"}];</script>
+<script>
+(function () {
+  "use strict";
+
+  var QUIZ_DATA = window.__QUIZ_DATA__;
+
+  var ROUNDS = (function(){
+    var map = {};
+    QUIZ_DATA.forEach(function(q){ map[q.r] = q.t; });
+    return Object.keys(map).map(Number).sort(function(a,b){return a-b;}).map(function(r){ return {r:r, t:map[r]}; });
+  })();
+
+  function shuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  }
+
+  // ---- lightweight per-viewer convenience: remember theme + last stats ----
+  function loadLocal(key, fallback) {
+    try {
+      var v = localStorage.getItem(key);
+      return v ? JSON.parse(v) : fallback;
+    } catch (e) { return fallback; }
+  }
+  function saveLocal(key, val) {
+    try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {}
+  }
+
+  var state = {
+    screen: "home",        // home | quiz | result
+    queue: [],              // array of question objects for this session
+    idx: 0,
+    picked: null,           // per-question: boolean or null
+    answers: [],            // {q, picked, correct}
+    modeLabel: ""
+  };
+
+  function startSession(questions, label) {
+    state.screen = "quiz";
+    state.queue = shuffle(questions);
+    state.idx = 0;
+    state.picked = null;
+    state.answers = [];
+    state.modeLabel = label;
+    render();
+  }
+
+  function allQuestions() { return QUIZ_DATA; }
+  function roundQuestions(r) { return QUIZ_DATA.filter(function(q){ return q.r === r; }); }
+
+  function randomMix(n) {
+    return shuffle(QUIZ_DATA).slice(0, Math.min(n, QUIZ_DATA.length));
+  }
+
+  function pick(ans) {
+    if (state.picked !== null) return;
+    var cur = state.queue[state.idx];
+    var correct = (ans === cur.ans);
+    state.picked = ans;
+    state.answers.push({ q: cur, picked: ans, correct: correct });
+    render();
+  }
+
+  function next() {
+    if (state.idx < state.queue.length - 1) {
+      state.idx++;
+      state.picked = null;
+      render();
+    } else {
+      finishSession();
+    }
+  }
+
+  function finishSession() {
+    state.screen = "result";
+    var correctCount = state.answers.filter(function(a){ return a.correct; }).length;
+    var stats = loadLocal("quiz_stats_v1", { sessions: 0, bestScore: 0 });
+    stats.sessions += 1;
+    var pct = Math.round((correctCount / state.answers.length) * 100);
+    if (pct > stats.bestScore) stats.bestScore = pct;
+    saveLocal("quiz_stats_v1", stats);
+    render();
+  }
+
+  function goHome() {
+    state.screen = "home";
+    render();
+  }
+
+  function retryMissed() {
+    var missed = state.answers.filter(function(a){ return !a.correct; }).map(function(a){ return a.q; });
+    if (missed.length === 0) return;
+    startSession(missed, "間違えた問題（" + missed.length + "問）");
+  }
+
+  function esc(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  // ---------------- Rendering ----------------
+
+  function render() {
+    var app = document.getElementById("app");
+    app.innerHTML = "";
+    app.appendChild(renderTopbar());
+    if (state.screen === "home") app.appendChild(renderHome());
+    else if (state.screen === "quiz") app.appendChild(renderQuiz());
+    else if (state.screen === "result") app.appendChild(renderResult());
+    var fn = document.createElement("div");
+    fn.className = "footnote";
+    fn.textContent = "衛生化学2 ｜ 第1〜9回 ○×小テスト（全90問）";
+    app.appendChild(fn);
+  }
+
+  function renderTopbar() {
+    var bar = document.createElement("div");
+    bar.className = "topbar";
+    var brand = document.createElement("div");
+    brand.className = "brand";
+    brand.innerHTML = "衛生化学2 小テスト道場 <span>Hygienic Chemistry Quiz</span>";
+    bar.appendChild(brand);
+
+    var toggle = document.createElement("button");
+    toggle.className = "theme-toggle";
+    var cur = document.documentElement.getAttribute("data-theme");
+    toggle.textContent = cur === "dark" ? "☾ ダーク" : (cur === "light" ? "☀ ライト" : "⚙ 自動");
+    toggle.onclick = function () {
+      var order = [null, "light", "dark"];
+      var i = order.indexOf(document.documentElement.getAttribute("data-theme"));
+      var nextTheme = order[(i + 1) % order.length];
+      if (nextTheme) document.documentElement.setAttribute("data-theme", nextTheme);
+      else document.documentElement.removeAttribute("data-theme");
+      saveLocal("quiz_theme_v1", nextTheme);
+      render();
+    };
+    bar.appendChild(toggle);
+    return bar;
+  }
+
+  function renderHome() {
+    var wrap = document.createElement("div");
+
+    var h1 = document.createElement("h1");
+    h1.textContent = "どのモードで復習しますか？";
+    wrap.appendChild(h1);
+
+    var sub = document.createElement("div");
+    sub.className = "sub";
+    sub.textContent = "第1回〜第9回の講義で出題した○×小テスト（各回10問、計90問）から出題します。";
+    wrap.appendChild(sub);
+
+    var stats = loadLocal("quiz_stats_v1", null);
+    if (stats && stats.sessions > 0) {
+      var statCard = document.createElement("div");
+      statCard.className = "card";
+      statCard.style.padding = "12px 16px";
+      statCard.style.display = "flex";
+      statCard.style.justifyContent = "space-between";
+      statCard.style.fontSize = "12.5px";
+      statCard.style.color = "var(--muted)";
+      statCard.innerHTML =
+        "<span>これまでの挑戦回数：<strong style='color:var(--ink)'>" + stats.sessions + "回</strong></span>" +
+        "<span>自己ベスト：<strong style='color:var(--teal)'>" + stats.bestScore + "%</strong></span>";
+      wrap.appendChild(statCard);
+    }
+
+    var grid = document.createElement("div");
+    grid.className = "mode-grid";
+
+    grid.appendChild(modeButton("🎲", "全90問ランダム", "全9回すべてからシャッフル出題", function () {
+      startSession(allQuestions(), "全90問ランダム");
+    }));
+    grid.appendChild(modeButton("⚡", "10問クイックチェック", "全範囲からランダムに10問だけ", function () {
+      startSession(randomMix(10), "10問クイックチェック");
+    }));
+    grid.appendChild(modeButton("🎯", "直近の回を復習（第7〜9回）", "直近3回・30問から出題", function () {
+      var qs = QUIZ_DATA.filter(function(q){ return q.r >= 7; });
+      startSession(qs, "直近の回を復習（第7〜9回）");
+    }));
+    wrap.appendChild(grid);
+
+    var label = document.createElement("div");
+    label.className = "section-label";
+    label.textContent = "回ごとに選ぶ";
+    wrap.appendChild(label);
+
+    var rgrid = document.createElement("div");
+    rgrid.className = "round-grid";
+    ROUNDS.forEach(function (ro) {
+      var chip = document.createElement("button");
+      chip.className = "round-chip";
+      chip.innerHTML =
+        "<div class='num'>第" + ro.r + "回</div>" +
+        "<span class='label'>" + esc(ro.t) + "</span>";
+      chip.onclick = function () {
+        startSession(roundQuestions(ro.r), "第" + ro.r + "回「" + ro.t + "」");
+      };
+      rgrid.appendChild(chip);
+    });
+    wrap.appendChild(rgrid);
+
+    return wrap;
+  }
+
+  function modeButton(icon, title, desc, onClick) {
+    var btn = document.createElement("button");
+    btn.className = "mode-btn";
+    btn.innerHTML =
+      "<div class='mode-icon'>" + icon + "</div>" +
+      "<div class='mode-text'>" +
+      "<div class='mode-title'>" + title + "</div>" +
+      "<div class='mode-desc'>" + desc + "</div>" +
+      "</div>";
+    btn.onclick = onClick;
+    return btn;
+  }
+
+  function renderQuiz() {
+    var wrap = document.createElement("div");
+    var cur = state.queue[state.idx];
+    var total = state.queue.length;
+    var correctSoFar = state.answers.filter(function(a){ return a.correct; }).length;
+
+    // progress
+    var pw = document.createElement("div");
+    pw.className = "progress-wrap";
+    var top = document.createElement("div");
+    top.className = "progress-top";
+    var leftSpan = document.createElement("span");
+    leftSpan.textContent = state.modeLabel + " ・ " + (state.idx + 1) + " / " + total;
+    var scorePill = document.createElement("span");
+    scorePill.className = "score-pill";
+    scorePill.textContent = "正解 " + correctSoFar + " / " + state.answers.length;
+    top.appendChild(leftSpan);
+    top.appendChild(scorePill);
+    pw.appendChild(top);
+    var barBg = document.createElement("div");
+    barBg.className = "progress-bar-bg";
+    var barFill = document.createElement("div");
+    barFill.className = "progress-bar-fill";
+    barFill.style.width = Math.round(((state.idx) / total) * 100) + "%";
+    barBg.appendChild(barFill);
+    pw.appendChild(barBg);
+    wrap.appendChild(pw);
+
+    // question card
+    var card = document.createElement("div");
+    card.className = "card";
+
+    var tag = document.createElement("div");
+    tag.className = "q-roundtag";
+    tag.textContent = "第" + cur.r + "回 ｜ 問" + cur.q;
+    card.appendChild(tag);
+
+    var qtext = document.createElement("div");
+    qtext.className = "q-text";
+    qtext.textContent = cur.text;
+    card.appendChild(qtext);
+
+    var answered = state.picked !== null;
+
+    var arow = document.createElement("div");
+    arow.className = "answer-row";
+
+    var maruBtn = buildAnsBtn(true, cur, answered);
+    var batsuBtn = buildAnsBtn(false, cur, answered);
+    arow.appendChild(maruBtn);
+    arow.appendChild(batsuBtn);
+    card.appendChild(arow);
+
+    if (answered) {
+      var wasCorrect = state.answers[state.answers.length - 1].correct;
+      var fb = document.createElement("div");
+      fb.className = "feedback " + (wasCorrect ? "ok" : "ng");
+      var head = document.createElement("div");
+      head.className = "feedback-head";
+      head.innerHTML = wasCorrect ? "✓ 正解！" : "✗ 不正解";
+      fb.appendChild(head);
+      var body = document.createElement("div");
+      body.className = "feedback-body";
+      body.innerHTML = "正解は「<strong>" + (cur.ans ? "○" : "×") + "</strong>」。 " + cur.exp;
+      fb.appendChild(body);
+      var sl = document.createElement("div");
+      sl.className = "feedback-slide";
+      sl.textContent = "該当スライド：" + cur.slide;
+      fb.appendChild(sl);
+      card.appendChild(fb);
+    }
+
+    wrap.appendChild(card);
+
+    var nav = document.createElement("div");
+    nav.className = "nav-row";
+    var quitBtn = document.createElement("button");
+    quitBtn.className = "btn btn-ghost";
+    quitBtn.textContent = "中断してトップへ";
+    quitBtn.onclick = goHome;
+    nav.appendChild(quitBtn);
+
+    if (answered) {
+      var nextBtn = document.createElement("button");
+      nextBtn.className = "btn btn-primary";
+      nextBtn.textContent = (state.idx < total - 1) ? "次の問題へ →" : "結果を見る →";
+      nextBtn.onclick = next;
+      nav.appendChild(nextBtn);
+    }
+    wrap.appendChild(nav);
+
+    return wrap;
+  }
+
+  function buildAnsBtn(val, cur, answered) {
+    var btn = document.createElement("button");
+    btn.className = "ans-btn " + (val ? "maru" : "batsu");
+    btn.innerHTML =
+      "<div class='mark'>" + (val ? "○" : "×") + "</div>" +
+      "<div class='word'>" + (val ? "正しい" : "誤り") + "</div>";
+    if (answered) {
+      var picked = state.picked;
+      if (val === cur.ans) btn.classList.add("correct-pick");
+      else if (val === picked && val !== cur.ans) btn.classList.add("wrong-pick");
+      else btn.classList.add("dim");
+      btn.disabled = true;
+    } else {
+      btn.onclick = function () { pick(val); };
+    }
+    return btn;
+  }
+
+  function renderResult() {
+    var wrap = document.createElement("div");
+    var total = state.answers.length;
+    var correctCount = state.answers.filter(function(a){ return a.correct; }).length;
+    var pct = total ? Math.round((correctCount / total) * 100) : 0;
+
+    var card = document.createElement("div");
+    card.className = "card result-score";
+    var big = document.createElement("div");
+    big.className = "big";
+    big.textContent = correctCount + " / " + total;
+    card.appendChild(big);
+    var small = document.createElement("div");
+    small.className = "small";
+    small.textContent = state.modeLabel + " の結果 ・ 正答率 " + pct + "%";
+    card.appendChild(small);
+    wrap.appendChild(card);
+
+    var nav = document.createElement("div");
+    nav.className = "nav-row";
+    var homeBtn = document.createElement("button");
+    homeBtn.className = "btn btn-ghost";
+    homeBtn.textContent = "トップへ戻る";
+    homeBtn.onclick = goHome;
+    nav.appendChild(homeBtn);
+
+    var missedCount = total - correctCount;
+    if (missedCount > 0) {
+      var retryBtn = document.createElement("button");
+      retryBtn.className = "btn btn-primary";
+      retryBtn.textContent = "間違えた" + missedCount + "問だけ再挑戦";
+      retryBtn.onclick = retryMissed;
+      nav.appendChild(retryBtn);
+    } else {
+      var againBtn = document.createElement("button");
+      againBtn.className = "btn btn-primary";
+      againBtn.textContent = "もう一度挑戦";
+      againBtn.onclick = function () { startSession(state.answers.map(function(a){return a.q;}), state.modeLabel); };
+      nav.appendChild(againBtn);
+    }
+    wrap.appendChild(nav);
+
+    var label = document.createElement("div");
+    label.className = "section-label";
+    label.textContent = "解答の振り返り";
+    wrap.appendChild(label);
+
+    var list = document.createElement("div");
+    list.className = "review-list";
+    state.answers.forEach(function (a, i) {
+      var item = document.createElement("div");
+      item.className = "review-item";
+      var head = document.createElement("div");
+      head.className = "ri-head";
+      head.innerHTML = "<span>第" + a.q.r + "回 問" + a.q.q + "</span><span>" + (a.correct ? "✓" : "✗") + "</span>";
+      item.appendChild(head);
+      var qd = document.createElement("div");
+      qd.className = "ri-q";
+      qd.textContent = a.q.text;
+      item.appendChild(qd);
+      var ans = document.createElement("div");
+      ans.className = "ri-ans";
+      ans.innerHTML = "あなたの解答：" + (a.picked ? "○" : "×") + " ｜ 正解："
+        + (a.correct ? "<span class='ok'>" + (a.q.ans ? "○" : "×") + "</span>" : "<span class='ng'>" + (a.q.ans ? "○" : "×") + "</span>");
+      item.appendChild(ans);
+      list.appendChild(item);
+    });
+    wrap.appendChild(list);
+
+    return wrap;
+  }
+
+  // ---- init: restore theme preference ----
+  var savedTheme = loadLocal("quiz_theme_v1", null);
+  if (savedTheme) document.documentElement.setAttribute("data-theme", savedTheme);
+
+  render();
+})();
+</script>
+
+</body>
+</html>
